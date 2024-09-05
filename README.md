@@ -1,7 +1,7 @@
 # ustreamgen
 This is *hopefully* a universal M3U to strm file generator.  
 
-Docker Image: https://hub.docker.com/r/hooray4rob/ustreamgen  
+Docker Image: https://hub.docker.com/r/mvfolino68/ustreamgen  
 
 It creates a folder structure of strm files for movies and tv series.
 
@@ -81,4 +81,14 @@ docker run -d \
   -v /path/to/logs:/logs
   /root/initialize_cron.sh
 hooray4rob/ustreamgen:latest
+```
+
+## Build and Push
+
+```bash
+docker buildx build --platform linux/amd64 \
+        --build-arg BUILDPLATFORM=linux/amd64 \
+        --build-arg TARGETPLATFORM=linux/amd64 \
+        -t mvfolino68/ustreamgen:latest-amd64 \
+        --push .
 ```

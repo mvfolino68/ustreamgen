@@ -265,63 +265,73 @@ def parseEpisode(title):
 def compare_and_update(dcmp, uid, gid):
     for name in dcmp.diff_files:
         print("STREAM CHANGE -  %s - UPDATING" % (name))
-        if os.path.isdir(dcmp.left+"/"+name):
-            shutil.copytree(dcmp.left+"/"+name, dcmp.right+"/"+name, dirs_exist_ok=True)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
-        elif os.path.isfile(dcmp.left+"/"+name):
-            shutil.copy2(dcmp.left+"/"+name, dcmp.right+"/"+name)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
+        left_path = os.path.join(dcmp.left, name)
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isdir(left_path):
+            shutil.copytree(left_path, right_path, dirs_exist_ok=True)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
+        elif os.path.isfile(left_path):
+            shutil.copy2(left_path, right_path)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
     for name in dcmp.left_only:
-        if os.path.isdir(dcmp.left+"/"+name):
+        left_path = os.path.join(dcmp.left, name)
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isdir(left_path):
             print("NEW STREAM DIRECTORY - %s - CREATING" % (name))
-            shutil.copytree(dcmp.left+"/"+name, dcmp.right+"/"+name, dirs_exist_ok=True)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
-        elif os.path.isfile(dcmp.left+"/"+name):
+            shutil.copytree(left_path, right_path, dirs_exist_ok=True)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
+        elif os.path.isfile(left_path):
             print("NEW STREAM FILE - %s - CREATING" % (name))
-            shutil.copy2(dcmp.left+"/"+name, dcmp.right+"/"+name)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
+            shutil.copy2(left_path, right_path)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
     for name in dcmp.right_only:
-        if os.path.isdir(dcmp.right+"/"+name):
-          print("directory NO LONGER EXISTS - %s - DELETING" % (name))
-          shutil.rmtree(dcmp.right+"/"+name)
-        if os.path.isfile(dcmp.right+"/"+name) and name.endswith(".strm"):
-          print("file NO LONGER EXISTS - %s - DELETING" % (name))
-          os.remove(dcmp.right+"/"+name)
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isdir(right_path):
+            print("directory NO LONGER EXISTS - %s - DELETING" % (name))
+            shutil.rmtree(right_path)
+        if os.path.isfile(right_path) and name.endswith(".strm"):
+            print("file NO LONGER EXISTS - %s - DELETING" % (name))
+            os.remove(right_path)
     for sub_dcmp in dcmp.subdirs.values():
         compare_and_update(sub_dcmp, uid, gid)
 
 def compare_and_update_events(dcmp, uid, gid):
     for name in dcmp.diff_files:
         print("STREAM CHANGE -  %s - UPDATING" % (name))
-        if os.path.isdir(dcmp.left+"/"+name):
-            shutil.copytree(dcmp.left+"/"+name, dcmp.right+"/"+name, dirs_exist_ok=True)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
-        elif os.path.isfile(dcmp.left+"/"+name):
-            shutil.copy2(dcmp.left+"/"+name, dcmp.right+"/"+name)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
+        left_path = os.path.join(dcmp.left, name)
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isdir(left_path):
+            shutil.copytree(left_path, right_path, dirs_exist_ok=True)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
+        elif os.path.isfile(left_path):
+            shutil.copy2(left_path, right_path)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
     for name in dcmp.left_only:
-        if os.path.isdir(dcmp.left+"/"+name):
+        left_path = os.path.join(dcmp.left, name)
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isdir(left_path):
             print("NEW STREAM DIRECTORY - %s - CREATING" % (name))
-            shutil.copytree(dcmp.left+"/"+name, dcmp.right+"/"+name, dirs_exist_ok=True)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
-        elif os.path.isfile(dcmp.left+"/"+name):
+            shutil.copytree(left_path, right_path, dirs_exist_ok=True)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
+        elif os.path.isfile(left_path):
             print("NEW STREAM FILE - %s - CREATING" % (name))
-            shutil.copy2(dcmp.left+"/"+name, dcmp.right+"/"+name)
-            os.chown(dcmp.right+"/"+name, uid, gid)
-            os.chmod(dcmp.right+"/"+name, 0o777)
+            shutil.copy2(left_path, right_path)
+            os.chown(right_path, uid, gid)
+            os.chmod(right_path, 0o777)
     for name in dcmp.right_only:
-        if os.path.isfile(dcmp.right+"/"+name) and name.endswith(".strm"):
+        right_path = os.path.join(dcmp.right, name)
+        if os.path.isfile(right_path) and name.endswith(".strm"):
             print("EVENT NO LONGER EXISTS - %s - DELETING" % (name))
-            os.remove(dcmp.right+"/"+name)
+            os.remove(right_path)
     for sub_dcmp in dcmp.subdirs.values():
-        compare_and_update_events(sub_dcmp, uid, gid) 
+        compare_and_update_events(sub_dcmp, uid, gid)
 
 def printArray(args):
     argcount =1

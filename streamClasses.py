@@ -4,80 +4,102 @@ import re
 import tools
 
 class Movie(object):
-  def __init__(self, title, url, year=None, resolution=None, language=None):
-    self.title = title.strip()
-    self.url = url
-    self.year = year
-    self.resolution = resolution
-    self.language = language
+    def __init__(self, title, url, year=None, resolution=None, language=None):
+        self.title = title.strip()
+        self.url = url
+        self.year = year
+        self.resolution = resolution
+        self.language = language
 
-  def getFilename(self):
-    filestring = [self.title.replace(':','-').replace('*','_').replace('/','_').replace('?','')]
-    if self.year:
-      if self.year[0] == "(":
-        filestring.append(self.year)
-      else:
-        self.year = "(" + self.year + ")"
-        filestring.append(self.year)
-    else:
-      self.year = "A"
-    if self.resolution:
-      filestring.append(self.resolution)
-    return ('movies/' + self.title.replace(':','-').replace('*','_').replace('/','_').replace('?','') + ' - ' + self.year + "/" + ' - '.join(filestring) + ".strm")
-  
-  def makeStream(self):
-    tools.makeStrm(self.getFilename(), self.url)
+    def getFilename(self):
+        filestring = [self.title.replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('\\','_')]
+        if self.year:
+            year = self.year.replace('\\', '_')  # Replace backslashes
+            filestring.append(year)
+        else:
+            self.year = "A"  
+        if self.resolution:
+            filestring.append(self.resolution)
+        
+        # Use os.path.join for creating paths
+        cleaned_title = self.title.replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('\\','_')
+        folder_name = "{} - {}".format(cleaned_title, self.year)
+        return os.path.join('movies', folder_name, ' - '.join(filestring) + ".strm")
+    
+    def makeStream(self):
+        tools.makeStrm(self.getFilename(), self.url)
 
 class Event(object):
-  def __init__(self, title, url, eventtype, year=None, resolution=None, language=None):
-    self.title = title.strip()
-    self.url = url
-    self.eventtype = eventtype
-    self.year = year
-    self.resolution = resolution
-    self.language = language
+    def __init__(self, title, url, eventtype, year=None, resolution=None, language=None):
+        self.title = title.strip()
+        self.url = url
+        self.eventtype = eventtype
+        self.year = year
+        self.resolution = resolution
+        self.language = language
 
-  def getFilename(self):
-    filestring = [self.title.strip().replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('|','-')]
-    if self.resolution:
-      filestring.append(self.resolution.strip())
-    return ('events/'+ self.eventtype.strip().replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('|','-') + "/" + ' - '.join(filestring) + ".strm")
-  
-  def makeStream(self):
-    tools.makeStrm(self.getFilename(), self.url)
+    def getFilename(self):
+        filestring = [self.clean_string(self.title.strip())]
+        if self.resolution:
+            filestring.append(self.resolution.strip())
+        
+        eventtype_cleaned = self.clean_string(self.eventtype.strip())
+        filename = ' - '.join(filestring) + ".strm"
+        
+        return os.path.join('events', eventtype_cleaned, filename)
+    
+    def clean_string(self, string):
+        return string.replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('|','-').replace('\\','_')
+
+    def makeStream(self):
+        tools.makeStrm(self.getFilename(), self.url)
+
 
 class TVEpisode(object):
-  def __init__(self, showtitle, url, seasonnumber=None, episodenumber=None ,resolution=None, language=None, episodename=None, airdate=None):
-    self.showtitle = showtitle
-    self.episodenumber = episodenumber
-    self.seasonnumber = seasonnumber
-    self.episodenumber = episodenumber
-    self.url = url
-    self.resolution = resolution
-    self.language = language
-    self.episodename = episodename
-    self.airdate = airdate
-    self.sXXeXX = "S" + str(self.seasonnumber) + "E" + str(self.episodenumber)
+    def __init__(self, showtitle, url, seasonnumber=None, episodenumber=None ,resolution=None, language=None, episodename=None, airdate=None):
+        self.showtitle = showtitle
+        self.episodenumber = episodenumber
+        self.seasonnumber = seasonnumber
+        self.url = url
+        self.resolution = resolution
+        self.language = language
+        self.episodename = episodename
+        self.airdate = airdate
+        self.sXXeXX = self.format_season_episode()
 
-  def getFilename(self):
-    filestring = [self.showtitle.replace(':','-').replace('*','_').replace('/','_').replace('?','')]
-    if self.airdate:
-      filestring.append(self.airdate.strip())
-    else:
-      filestring.append(self.sXXeXX.strip())
-    if self.episodename:
-      filestring.append(self.episodename.strip())
-    if self.language:
-      filestring.append(self.language.strip())
-    if self.resolution:
-      filestring.append(self.resolution.strip())
-    if self.seasonnumber:
-      return ('tvshows/' + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') + "/" + self.showtitle.strip().replace(':','-').replace('/','-').replace('*','_').replace('?','') + " - Season " + str(self.seasonnumber.strip()) + '/' + ' - '.join(filestring).replace(':','-').replace('*','_') + ".strm")
-    else:
-      return ('tvshows/' + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') +"/" +' - '.join(filestring).replace(':','-').replace('*','_') + ".strm")
-  
-  def makeStream(self):
-    tools.makeStrm(self.getFilename(), self.url)
+    def format_season_episode(self):
+        if self.seasonnumber is not None and self.episodenumber is not None:
+            return "S{:02d}E{:02d}".format(int(self.seasonnumber), int(self.episodenumber))
+        return ""
+
+    def getFilename(self):
+        showtitle_cleaned = self.clean_string(self.showtitle)
+        
+        filestring = [showtitle_cleaned]
+        if self.airdate:
+            filestring.append(self.airdate.strip())
+        elif self.sXXeXX:
+            filestring.append(self.sXXeXX.strip())
+        if self.episodename:
+            filestring.append(self.clean_string(self.episodename.strip()))
+        if self.language:
+            filestring.append(self.language.strip())
+        if self.resolution:
+            filestring.append(self.resolution.strip())
+        
+        filename = ' - '.join(filestring) + ".strm"
+        
+        if self.seasonnumber:
+            season_folder = "Season {:02d}".format(int(self.seasonnumber))
+            return os.path.join('tvshows', showtitle_cleaned, season_folder, filename)
+        else:
+            return os.path.join('tvshows', showtitle_cleaned, filename)
+    
+    def clean_string(self, string):
+        return string.replace(':','-').replace('*','_').replace('/','_').replace('?','').replace('\'','_').replace('\\','_')
+
+    def makeStream(self):
+        tools.makeStrm(self.getFilename(), self.url)
 
 class rawStreamList(object):
   def __init__(self, filename):
@@ -102,7 +124,7 @@ class rawStreamList(object):
       thisline = self.lines[linenumber]
       nextline = self.lines[linenumber + 1]
       firstline = re.compile('EXTM3U', re.IGNORECASE).search(thisline)
-      if firstline:
+      if firstline or thisline.startswith('#EXT-X-SESSION-DATA'):
         linenumber += 1
         continue
       thisline=thisline.replace("#","")
